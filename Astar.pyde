@@ -1,8 +1,8 @@
 # from processing_mock import *
 from spot import Spot
 
-COLS = 25
-ROWS = 25
+COLS = 50
+ROWS = 50
 grid = []
 
 open_set = []
@@ -17,17 +17,18 @@ GREEN = color(0, 255, 0)
 BLUE = color(0, 0, 255)
 PURPLE = color(128, 0, 128)
 
+
 def setup():
     global grid, start_spot, end_spot, open_set, closed_set
-    
+
     grid = []
 
     open_set = []
     closed_set = []
-    
+
     start_spot = None
     end_spot = None
-    
+
     size(800, 800)
     frameRate(24)
     background(0)
@@ -39,22 +40,23 @@ def setup():
 
     Spot.set_width_and_height(spot_w, spot_h)
     grid = [[Spot(i, j) for j in range(ROWS)] for i in range(COLS)]
-    
+
     for row in grid:
         for spot in row:
             spot.add_neighbors(grid)
-    
+
     start_spot = grid[0][0]
     # end_col = int(random(COLS))
     # end_row = int(random(ROWS))
-    end_col = COLS-1
-    end_row = ROWS-1
+    end_col = COLS - 1
+    end_row = ROWS - 1
     end_spot = grid[end_col][end_row]
-    
+
     grid[0][0].wall = False
     grid[end_col][end_row].wall = False
 
     open_set.append(start_spot)
+
 
 def draw():
     global grid
@@ -78,7 +80,7 @@ def draw():
 
     open_set.remove(current)
     closed_set.append(current)
-    
+
     neighbors = current.neighbors
     for neighbor in neighbors:
         if neighbor in closed_set or neighbor.wall:
@@ -100,9 +102,6 @@ def draw():
             neighbor.previous = current
             open_set.append(neighbor)
 
-                
-        
-                
     background(0)
 
     # Find the path
@@ -110,9 +109,9 @@ def draw():
     display_grid(grid, path)
 
 
-def display_grid(grid, path = []):
+def display_grid(grid, path=[]):
     global end_spot
-    
+
     for row in grid:
         for spot in row:
             spot.show(WHITE)
@@ -122,15 +121,17 @@ def display_grid(grid, path = []):
 
     for spot in closed_set:
         spot.show(RED)
-        
+
     for spot in path:
         spot.show(BLUE)
-        
+
     end_spot.show(PURPLE)
-        
+
+
 def heuristic(a, b):
     return dist(a.x, a.y, b.x, b.y)  # Both heuristic causes somr end path bugs
     # return abs(a.x-b.x) + abs(a.y-b.y)
+
 
 def find_path(spot):
     path = []

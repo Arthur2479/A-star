@@ -13,10 +13,10 @@ class Spot:
         self.h = 0
 
         self.neighbors = []
-        
+
         self.previous = None
         self.wall = False
-        
+
         if random(1) < 0.3:
             self.wall = True
 
@@ -28,6 +28,7 @@ class Spot:
         rect(self.x * self.WIDTH, self.y * self.HEIGHT, self.WIDTH - 1, self.HEIGHT - 1)
 
     def add_neighbors(self, grid):
+        # TODO : improve this
         if self.x < len(grid) - 1:
             self.neighbors.append(grid[self.x + 1][self.y])
         if self.x > 0:
@@ -36,6 +37,15 @@ class Spot:
             self.neighbors.append(grid[self.x][self.y + 1])
         if self.y > 0:
             self.neighbors.append(grid[self.x][self.y - 1])
+
+        if self.x > 0 and self.y > 0:
+            self.neighbors.append(grid[self.x - 1][self.y - 1])
+        if self.x < len(grid) - 1 and self.y > 0:
+            self.neighbors.append(grid[self.x + 1][self.y - 1])
+        if self.x > 0 and self.y < len(grid[0]) - 1:
+            self.neighbors.append(grid[self.x - 1][self.y + 1])
+        if self.x < len(grid) - 1 and self.y < len(grid[0]) - 1:
+            self.neighbors.append(grid[self.x + 1][self.y + 1])
 
     @classmethod
     def set_width_and_height(cls, w, h):
