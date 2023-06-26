@@ -18,7 +18,16 @@ BLUE = color(0, 0, 255)
 PURPLE = color(128, 0, 128)
 
 def setup():
-    global grid, start_spot, end_spot
+    global grid, start_spot, end_spot, open_set, closed_set
+    
+    grid = []
+
+    open_set = []
+    closed_set = []
+    
+    start_spot = None
+    end_spot = None
+    
     size(400, 400)
     frameRate(24)
     background(0)
@@ -54,7 +63,9 @@ def draw():
 
     current = open_set[winner]
     if current == end_spot:
-        noLoop()
+        delay(1000)
+        setup()
+        return
 
     open_set.remove(current)
     closed_set.append(current)
@@ -119,4 +130,3 @@ def find_path(spot):
         path.append(spot.previous)
         spot = spot.previous
     return path
-    
