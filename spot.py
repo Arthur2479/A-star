@@ -15,9 +15,15 @@ class Spot:
         self.neighbors = []
         
         self.previous = None
+        self.wall = False
+        
+        if random(1) < 0.3:
+            self.wall = True
 
     def show(self, col):
         fill(col)
+        if self.wall:
+            fill(0)
         noStroke()
         rect(self.x * self.WIDTH, self.y * self.HEIGHT, self.WIDTH - 1, self.HEIGHT - 1)
 

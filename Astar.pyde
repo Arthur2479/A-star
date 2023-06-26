@@ -28,7 +28,7 @@ def setup():
     start_spot = None
     end_spot = None
     
-    size(400, 400)
+    size(800, 800)
     frameRate(24)
     background(0)
     strokeWeight(1)
@@ -45,7 +45,14 @@ def setup():
             spot.add_neighbors(grid)
     
     start_spot = grid[0][0]
-    end_spot = grid[int(random(COLS))][int(random(ROWS))]
+    # end_col = int(random(COLS))
+    # end_row = int(random(ROWS))
+    end_col = COLS-1
+    end_row = ROWS-1
+    end_spot = grid[end_col][end_row]
+    
+    grid[0][0].wall = False
+    grid[end_col][end_row].wall = False
 
     open_set.append(start_spot)
 
@@ -54,6 +61,8 @@ def draw():
 
     if len(open_set) == 0:
         print('Empty open set')
+        delay(1000)
+        setup()
         return  # Failed
 
     winner = 0
@@ -72,7 +81,7 @@ def draw():
     
     neighbors = current.neighbors
     for neighbor in neighbors:
-        if neighbor in closed_set:
+        if neighbor in closed_set or neighbor.wall:
             continue
 
         temp_g = current.g + 1  # no need to caclulate distance because orthogonal grid
@@ -120,7 +129,7 @@ def display_grid(grid, path = []):
     end_spot.show(PURPLE)
         
 def heuristic(a, b):
-    return dist(a.x, a.y, b.x, b.y)
+    return dist(a.x, a.y, b.x, b.y)  # Both heuristic causes somr end path bugs
     # return abs(a.x-b.x) + abs(a.y-b.y)
 
 def find_path(spot):
