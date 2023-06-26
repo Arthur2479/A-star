@@ -15,6 +15,7 @@ WHITE = color(255)
 RED = color(255, 0, 0)
 GREEN = color(0, 255, 0)
 BLUE = color(0, 0, 255)
+PURPLE = color(128, 0, 128)
 
 def setup():
     global grid, start_spot, end_spot
@@ -35,7 +36,7 @@ def setup():
             spot.add_neighbors(grid)
     
     start_spot = grid[0][0]
-    end_spot = grid[22][3]
+    end_spot = grid[int(random(COLS))][int(random(ROWS))]
 
     open_set.append(start_spot)
 
@@ -90,6 +91,8 @@ def draw():
 
 
 def display_grid(grid, path = []):
+    global end_spot
+    
     for row in grid:
         for spot in row:
             spot.show(WHITE)
@@ -103,9 +106,11 @@ def display_grid(grid, path = []):
     for spot in path:
         spot.show(BLUE)
         
+    end_spot.show(PURPLE)
+        
 def heuristic(a, b):
-    # return dist(a.x, a.y, b.x, b.y)
-    return abs(a.x-b.x) + abs(a.y-b.y)
+    return dist(a.x, a.y, b.x, b.y)
+    # return abs(a.x-b.x) + abs(a.y-b.y)
 
 def find_path(spot):
     path = []
