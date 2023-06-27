@@ -20,6 +20,9 @@ class Spot:
         if random(1) < 0.3:
             self.wall = True
 
+    def __eq__(self, other):
+        return self.x == other.x and self.y == other.y
+
     def show(self, col):
         fill(col)
         if self.wall:

@@ -1,4 +1,4 @@
- from processing_mock import *
+from processing_mock import *
 from spot import Spot
 
 
@@ -49,8 +49,6 @@ grid = Grid()
 
 
 def setup():
-    global grid
-
     size(800, 800)
     frameRate(24)
     background(0)
@@ -66,12 +64,10 @@ def setup():
 
 
 def draw():
-    global grid
-
     if len(grid.open_set) == 0:
         print('Empty open set')
         delay(1000)
-        setup()
+        grid.setup_grid(random_end=True)
         return  # Failed
 
     winner = 0
@@ -82,7 +78,7 @@ def draw():
     current = grid.open_set[winner]
     if current == grid.end_spot:
         delay(1000)
-        setup()
+        grid.setup_grid(random_end=True)
         return
 
     grid.open_set.remove(current)
@@ -90,30 +86,29 @@ def draw():
 
     neighbors = current.neighbors
     for neighbor in neighbors:
-        print('in for')
         if neighbor in grid.closed_set or neighbor.wall:
             continue
 
         temp_g = current.g + 1  # no need to caclulate distance because orthogonal grid
+        # TODO : add a supplement if diagonal
 
+        if neighbor in grid.open_set and not temp_g < neighbor.g:
+            continue
+
+        neighbor.g = temp_g
+        neighbor.h = heuristic(neighbor, grid.end_spot)
+        neighbor.f = neighbor.g + neighbor.h
+        neighbor.previous = current
         if neighbor in grid.open_set:
             if temp_g < neighbor.g:
                 index = grid.open_set.index(neighbor)
-                grid.open_set[index].g = temp_g
-                grid.open_set[index].h = heuristic(neighbor, grid.end_spot)
-                grid.open_set[index].f = grid.open_set[index].g + grid.open_set[index].h
-                grid.open_set[index].previous = current
+                grid.open_set[index] = neighbor
         else:
-            neighbor.g = temp_g
-            neighbor.h = heuristic(neighbor, grid.end_spot)
-            neighbor.f = neighbor.g + neighbor.h
-            neighbor.previous = current
             grid.open_set.append(neighbor)
 
     background(0)
     # Find the path
     path = find_path(current)
-    print('before displ')
     display_grid(grid, path)
 
 
