@@ -1,4 +1,4 @@
-# from processing_mock import *
+from processing_mock import *
 
 
 class Spot:

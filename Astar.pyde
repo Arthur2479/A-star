@@ -1,15 +1,43 @@
-# from processing_mock import *
+ from processing_mock import *
 from spot import Spot
 
-COLS = 50
-ROWS = 50
-grid = []
 
-open_set = []
-closed_set = []
+class Grid:
+    COLS = 50
+    ROWS = 50
 
-start_spot = None
-end_spot = None
+    def __init__(self):
+        self.grid = []
+
+        self.open_set = []
+        self.closed_set = []
+
+        self.start_spot = None
+        self.end_spot = None
+
+    def setup_grid(self, random_end=False):
+        self.grid = [[Spot(i, j) for j in range(self.ROWS)] for i in range(self.COLS)]
+        self.open_set = []
+        self.closed_set = []
+
+        self.start_spot = self.grid[0][0]
+        if random_end:
+            end_col = int(random(self.COLS))
+            end_row = int(random(self.ROWS))
+        else:
+            end_col = self.COLS - 1
+            end_row = self.ROWS - 1
+        self.end_spot = self.grid[end_col][end_row]
+
+        for row in self.grid:
+            for spot in row:
+                spot.add_neighbors(self.grid)
+
+        self.grid[0][0].wall = False
+        self.grid[end_col][end_row].wall = False
+
+        self.open_set.append(self.start_spot)
+
 
 WHITE = color(255)
 RED = color(255, 0, 0)
@@ -17,17 +45,11 @@ GREEN = color(0, 255, 0)
 BLUE = color(0, 0, 255)
 PURPLE = color(128, 0, 128)
 
+grid = Grid()
+
 
 def setup():
-    global grid, start_spot, end_spot, open_set, closed_set
-
-    grid = []
-
-    open_set = []
-    closed_set = []
-
-    start_spot = None
-    end_spot = None
+    global grid
 
     size(800, 800)
     frameRate(24)
@@ -35,97 +57,84 @@ def setup():
     strokeWeight(1)
     print('A*')
 
-    spot_w = int(width / COLS)
-    spot_h = int(height / COLS)
+    spot_w = int(width / Grid.COLS)
+    spot_h = int(height / Grid.COLS)
 
     Spot.set_width_and_height(spot_w, spot_h)
-    grid = [[Spot(i, j) for j in range(ROWS)] for i in range(COLS)]
 
-    for row in grid:
-        for spot in row:
-            spot.add_neighbors(grid)
-
-    start_spot = grid[0][0]
-    # end_col = int(random(COLS))
-    # end_row = int(random(ROWS))
-    end_col = COLS - 1
-    end_row = ROWS - 1
-    end_spot = grid[end_col][end_row]
-
-    grid[0][0].wall = False
-    grid[end_col][end_row].wall = False
-
-    open_set.append(start_spot)
+    grid.setup_grid(random_end=True)
 
 
 def draw():
     global grid
 
-    if len(open_set) == 0:
+    if len(grid.open_set) == 0:
         print('Empty open set')
         delay(1000)
         setup()
         return  # Failed
 
     winner = 0
-    for i, spot in enumerate(open_set):
-        if spot.f < open_set[winner].f:
+    for i, spot in enumerate(grid.open_set):
+        if spot.f < grid.open_set[winner].f:
             winner = i
 
-    current = open_set[winner]
-    if current == end_spot:
+    current = grid.open_set[winner]
+    if current == grid.end_spot:
         delay(1000)
         setup()
         return
 
-    open_set.remove(current)
-    closed_set.append(current)
+    grid.open_set.remove(current)
+    grid.closed_set.append(current)
 
     neighbors = current.neighbors
     for neighbor in neighbors:
-        if neighbor in closed_set or neighbor.wall:
+        print('in for')
+        if neighbor in grid.closed_set or neighbor.wall:
             continue
 
         temp_g = current.g + 1  # no need to caclulate distance because orthogonal grid
 
-        if neighbor in open_set:
+        if neighbor in grid.open_set:
             if temp_g < neighbor.g:
-                index = open_set.index(neighbor)
-                open_set[index].g = temp_g
-                open_set[index].h = heuristic(neighbor, end_spot)
-                open_set[index].f = open_set[index].g + open_set[index].h
-                open_set[index].previous = current
+                index = grid.open_set.index(neighbor)
+                grid.open_set[index].g = temp_g
+                grid.open_set[index].h = heuristic(neighbor, grid.end_spot)
+                grid.open_set[index].f = grid.open_set[index].g + grid.open_set[index].h
+                grid.open_set[index].previous = current
         else:
             neighbor.g = temp_g
-            neighbor.h = heuristic(neighbor, end_spot)
+            neighbor.h = heuristic(neighbor, grid.end_spot)
             neighbor.f = neighbor.g + neighbor.h
             neighbor.previous = current
-            open_set.append(neighbor)
+            grid.open_set.append(neighbor)
 
     background(0)
-
     # Find the path
     path = find_path(current)
+    print('before displ')
     display_grid(grid, path)
 
 
-def display_grid(grid, path=[]):
-    global end_spot
+def display_grid(grid, path=None):
+    if path is None:
+        path = []
 
-    for row in grid:
+    for row in grid.grid:
         for spot in row:
             spot.show(WHITE)
 
-    for spot in open_set:
+    for spot in grid.open_set:
         spot.show(GREEN)
 
-    for spot in closed_set:
+    for spot in grid.closed_set:
         spot.show(RED)
 
     for spot in path:
         spot.show(BLUE)
 
-    end_spot.show(PURPLE)
+    grid.end_spot.show(PURPLE)
 
 
 def heuristic(a, b):
