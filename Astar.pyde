@@ -29,14 +29,17 @@ class Grid:
             end_row = self.ROWS - 1
         self.end_spot = self.grid[end_col][end_row]
 
-        for row in self.grid:
-            for spot in row:
-                spot.add_neighbors(self.grid)
+        self.add_neighbors()
 
         self.grid[0][0].wall = False
         self.grid[end_col][end_row].wall = False
 
         self.open_set.append(self.start_spot)
+
+    def add_neighbors(self):
+        for row in self.grid:
+            for spot in row:
+                spot.add_neighbors(self.grid, self.COLS, self.ROWS)
 
 
 WHITE = color(255)
@@ -89,8 +92,11 @@ def draw():
         if neighbor in grid.closed_set or neighbor.wall:
             continue
 
-        temp_g = current.g + 1  # no need to caclulate distance because orthogonal grid
-        # TODO : add a supplement if diagonal
+        # FIXME : a bit ugly and complex
+        if neighbor in current.radial_neighbors:
+            temp_g = current.g + 1
+        if neighbor in current.diagonal_neighbors:
+            temp_g = current.g + 1.41
 
         if neighbor in grid.open_set and not temp_g < neighbor.g:
             continue
@@ -133,8 +139,8 @@ def display_grid(grid, path=None):
 
 
 def heuristic(a, b):
-    return dist(a.x, a.y, b.x, b.y)  # Both heuristic causes somr end path bugs
-    # return abs(a.x-b.x) + abs(a.y-b.y)
+    # return dist(a.x, a.y, b.x, b.y)  # Both heuristic causes somr end path bugs
+    return abs(a.x-b.x) + abs(a.y-b.y)
 
 
 def find_path(spot):

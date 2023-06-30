@@ -1,3 +1,6 @@
+# import random as rd
+#
+#
 # def fill(*args, **kwargs):
 #     pass
 #
@@ -26,8 +29,8 @@
 #     pass
 #
 #
-# def random(*args, **kwargs):
-#     pass
+# def random(val, *args, **kwargs):
+#     return rd.random() * val
 #
 #
 # def delay(*args, **kwargs):
