@@ -16,17 +16,14 @@ class Spot:
         self.diagonal_neighbors = []
 
         self.previous = None
-        self.wall = False
-
-        if random(1) < 0.3:
-            self.wall = True
+        self.block = False
 
     def __eq__(self, other):
         return self.x == other.x and self.y == other.y
 
     def show(self, col):
         fill(col)
-        if self.wall:
+        if self.block:
             fill(0)
         noStroke()
         rect(self.x * self.WIDTH, self.y * self.HEIGHT, self.WIDTH - 1, self.HEIGHT - 1)

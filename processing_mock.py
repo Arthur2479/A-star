@@ -40,6 +40,8 @@
 # def strokeWeight(*args, **kwargs):
 #     pass
 #
+# def noise(*args, **kwargs):
+#     pass
 #
 # width = 0
 # height = 0

@@ -3,8 +3,8 @@ from spot import Spot
 
 
 class Grid:
-    COLS = 100
-    ROWS = 100
+    COLS = 50
+    ROWS = 50
 
     def __init__(self):
         self.grid = []
@@ -28,11 +28,15 @@ class Grid:
             end_col = self.COLS - 1
             end_row = self.ROWS - 1
         self.end_spot = self.grid[end_col][end_row]
-
+        
+        if random(1) < 0.5:
+            self.add_blocks('perlin', 0.45)
+        else:
+            self.add_blocks('random')
         self.add_neighbors()
 
-        self.grid[0][0].wall = False
-        self.grid[end_col][end_row].wall = False
+        self.grid[0][0].block = False
+        self.grid[end_col][end_row].block = False
 
         self.open_set.append(self.start_spot)
 
@@ -40,6 +44,17 @@ class Grid:
         for row in self.grid:
             for spot in row:
                 spot.add_neighbors(self.grid, self.COLS, self.ROWS)
+
+    def add_blocks(self, distribution, threshold=0.3):
+        noiseSeed(int(random(1000)))
+        for i, row in enumerate(self.grid):
+            for j, spot in enumerate(row):
+                if distribution == 'random':
+                    val = random(1)
+                elif distribution == 'perlin':
+                    val = noise(i*0.9, j*0.8)
+                if val < threshold:
+                    spot.block = True
 
 
 WHITE = color(255)
@@ -91,7 +106,7 @@ def draw():
 
     neighbors = current.neighbors
     for neighbor in neighbors:
-        if neighbor in grid.closed_set or neighbor.wall:
+        if neighbor in grid.closed_set or neighbor.block:
             continue
 
         # FIXME : a bit ugly and complex
@@ -163,16 +178,15 @@ def iteration_saver(status, grid, current):
         walls = ''
         for col in grid.grid:
             for spot in col:
-                if spot.wall:
+                if spot.block:
                     walls += 'x'
                 else:
                     walls += ' '
             walls += ', '
-            
+
         file.write('##################################\n\n')
         file.write(status + ':')
         file.write(str(walls))
         file.write('\nEnd path: ')
         file.write(str([(spot.x, spot.y) for spot in find_path(current)]))
         file.write('\n\n')
-        
