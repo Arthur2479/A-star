@@ -3,8 +3,8 @@ from spot import Spot
 
 
 class Grid:
-    COLS = 50
-    ROWS = 50
+    COLS = 100
+    ROWS = 100
 
     def __init__(self):
         self.grid = []
@@ -69,6 +69,7 @@ def setup():
 def draw():
     if len(grid.open_set) == 0:
         print('Empty open set')
+        # iteration_saver('Failure', grid, current)
         delay(1000)
         grid.setup_grid(random_end=True)
         return  # Failed
@@ -80,6 +81,7 @@ def draw():
 
     current = grid.open_set[winner]
     if current == grid.end_spot:
+        iteration_saver('Success', grid, current)
         delay(1000)
         grid.setup_grid(random_end=True)
         return
@@ -140,7 +142,7 @@ def display_grid(grid, path=None):
 
 def heuristic(a, b):
     # return dist(a.x, a.y, b.x, b.y)  # Both heuristic causes somr end path bugs
-    return abs(a.x-b.x) + abs(a.y-b.y)
+    return abs(a.x - b.x) + abs(a.y - b.y)
 
 
 def find_path(spot):
@@ -150,3 +152,27 @@ def find_path(spot):
         path.append(spot.previous)
         spot = spot.previous
     return path
+
+
+def iteration_saver(status, grid, current):
+    # TODO : create a file per day ?
+    # TODO : improve readability
+    # FIXME : cols are stored in lines
+    # TODO : add game data : algorithm, cols & grids, ...
+    with open('./data/games.txt', 'a') as file:
+        walls = ''
+        for col in grid.grid:
+            for spot in col:
+                if spot.wall:
+                    walls += 'x'
+                else:
+                    walls += ' '
+            walls += ', '
+            
+        file.write('##################################\n\n')
+        file.write(status + ':')
+        file.write(str(walls))
+        file.write('\nEnd path: ')
+        file.write(str([(spot.x, spot.y) for spot in find_path(current)]))
+        file.write('\n\n')
+        
