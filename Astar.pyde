@@ -28,7 +28,7 @@ class Grid:
             end_col = self.COLS - 1
             end_row = self.ROWS - 1
         self.end_spot = self.grid[end_col][end_row]
-        
+
         if random(1) < 0.5:
             self.add_blocks('perlin', 0.45)
         else:
@@ -39,6 +39,19 @@ class Grid:
         self.grid[end_col][end_row].block = False
 
         self.open_set.append(self.start_spot)
+
+    def restart_sim(self):
+        # TODO : clean this
+        self.open_set = [self.grid[0][0]]
+        self.closed_set = []
+
+        for col in self.grid:
+            for spot in col:
+                spot.f = 0
+                spot.g = 0
+                spot.h = 0
+
+                spot.previous = None
 
     def add_neighbors(self):
         for row in self.grid:
@@ -52,9 +65,14 @@ class Grid:
                 if distribution == 'random':
                     val = random(1)
                 elif distribution == 'perlin':
-                    val = noise(i*0.9, j*0.8)
+                    val = noise(i * 0.9, j * 0.8)
                 if val < threshold:
                     spot.block = True
+
+    def locate_point(self, x, y):
+        i = floor(self.COLS * x / width)
+        j = floor(self.ROWS * y / height)
+        return i, j
 
 
 WHITE = color(255)
@@ -135,6 +153,24 @@ def draw():
     display_grid(grid, path)
 
 
+def mouseDragged():
+    place_or_remove_wall()
+
+
+def mouseClicked():
+    place_or_remove_wall()
+
+
+def place_or_remove_wall():
+    x, y = grid.locate_point(mouseX, mouseY)
+    if mouseButton == LEFT and not grid.grid[x][y].block:
+        grid.grid[x][y].block = True
+        grid.restart_sim()
+    elif mouseButton == RIGHT and grid.grid[x][y].block:
+        grid.grid[x][y].block = False
+        grid.restart_sim()
+
+
 def display_grid(grid, path=None):
     if path is None:
         path = []
@@ -156,13 +192,11 @@ def display_grid(grid, path=None):
 
 
 def heuristic(a, b):
-    # return dist(a.x, a.y, b.x, b.y)  # Both heuristic causes somr end path bugs
     return abs(a.x - b.x) + abs(a.y - b.y)
 
 
 def find_path(spot):
-    path = []
-    path.append(spot)
+    path = [spot]
     while spot.previous:
         path.append(spot.previous)
         spot = spot.previous
