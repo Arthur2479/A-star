@@ -25,7 +25,11 @@ def draw():
         return
 
     if len(grid.open_set) == 0:
-        # iteration_saver('Failure', grid, current)
+        # If stuck at the beginning because of random generation, clear the path a bit
+        if len(grid.closed_set) < 10 and grid.tries < 5:
+            grid.clear_entrance()
+            return
+
         delay(END_DELAY)
         grid.setup_grid(random_end=True)
         return  # No possible path

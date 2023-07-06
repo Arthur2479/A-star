@@ -16,11 +16,15 @@ class Grid:
         self.start_spot = None
         self.end_spot = None
 
+        self.tries = 0
+        self.pause = False
+
     def setup_grid(self, random_end=False):
         self.grid = [[Spot(i, j) for j in range(self.ROWS)] for i in range(self.COLS)]
 
         self.open_set = []
         self.closed_set = []
+        self.tries = 0
 
         self.start_spot = self.grid[0][0]
         if random_end:
@@ -118,3 +122,8 @@ class Grid:
             path.append(spot.previous)
             spot = spot.previous
         return path
+
+    def clear_entrance(self):
+        self.tries = self.tries + 1
+        self.grid[self.tries][self.tries].block = False
+        self.restart_sim()
