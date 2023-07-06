@@ -18,6 +18,7 @@ class Grid:
 
     def setup_grid(self, random_end=False):
         self.grid = [[Spot(i, j) for j in range(self.ROWS)] for i in range(self.COLS)]
+
         self.open_set = []
         self.closed_set = []
 
@@ -42,7 +43,6 @@ class Grid:
         self.open_set.append(self.start_spot)
 
     def restart_sim(self):
-        # TODO : clean this
         self.open_set = [self.grid[0][0]]
         self.closed_set = []
 
@@ -53,6 +53,7 @@ class Grid:
                 spot.h = 0
 
                 spot.previous = None
+        self.display_grid()
 
     def add_neighbors(self):
         for row in self.grid:
@@ -66,7 +67,9 @@ class Grid:
                 if distribution == 'random':
                     val = random(1)
                 elif distribution == 'perlin':
-                    val = noise(i * 0.9, j * 0.8)
+                    val = noise(i * 0.8, j * 0.8)
+                else:
+                    raise NotImplementedError('Only pure random and perlin noise are implemented for now')
                 if val < threshold:
                     spot.block = True
 
@@ -79,7 +82,7 @@ class Grid:
         x, y = self._locate_point(mouseX, mouseY)
         if min(x, y) < 0 or max(x, y) > width_:  # Outside of screen
             return
-        if mouseButton == LEFT and not self.grid[x][y].block:
+        if mouseButton == LEFT and not self.grid[x][y].block and not self.grid[x][y] == self.end_spot:
             self.grid[x][y].block = True
         elif mouseButton == RIGHT and self.grid[x][y].block:
             self.grid[x][y].block = False
@@ -90,6 +93,7 @@ class Grid:
         self.restart_sim()
 
     def display_grid(self, path=None):
+        background(0)
         if path is None:
             path = []
 

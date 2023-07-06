@@ -21,6 +21,9 @@ def setup():
 
 
 def draw():
+    if grid.pause:
+        return
+
     if len(grid.open_set) == 0:
         # iteration_saver('Failure', grid, current)
         delay(END_DELAY)
@@ -30,7 +33,6 @@ def draw():
     winner = find_winner_index(grid)
     current = grid.open_set[winner]
     if current == grid.end_spot:
-        iteration_saver('Success', grid, current)
         delay(END_DELAY)
         grid.setup_grid(random_end=True)
         return
@@ -40,7 +42,6 @@ def draw():
 
     discover_neighbors(current)
 
-    background(0)
     # Find the path
     path = grid.find_path(current)
     grid.display_grid(path)
@@ -57,29 +58,10 @@ def mouseClicked():
 def keyPressed():
     if key == "r" or key == "R":
         grid.restart_sim()
-
-
-def iteration_saver(status, grid, current):
-    # TODO : create a file per day ?
-    # TODO : improve readability
-    # FIXME : cols are stored in lines
-    # TODO : add game games : algorithm, cols & grids, ...
-    with open('./games/games.txt', 'a') as file:
-        walls = ''
-        for col in grid.grid:
-            for spot in col:
-                if spot.block:
-                    walls += 'x'
-                else:
-                    walls += ' '
-            walls += ', '
-
-        file.write('##################################\n\n')
-        file.write(status + ':')
-        file.write(str(walls))
-        file.write('\nEnd path: ')
-        file.write(str([(spot.x, spot.y) for spot in grid.find_path(current)]))
-        file.write('\n\n')
+    elif key == "p" or key == "P":
+        grid.pause = not grid.pause
+    elif key == "n" or key == "N":  # Next
+        grid.setup_grid(random_end=True)
 
 
 def find_winner_index(grid_):
