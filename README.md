@@ -19,12 +19,12 @@ There are a few ways you can interact with the simulation:
 
 - Mouse buttons: _(Tip: you can keep them pressed and move your mouse)_
 
-    - Left: add blocks
-    - Center: move the end point
-    - Right: remove blocks
+    - `Left`: add blocks
+    - `Center`: move the end point
+    - `Right`: remove blocks
 
 - Keyboard keys:
 
-    - P: pause the current simulation
-    - R: restart the current simulation
-    - N: Go to next simulation
+    - `P`: pause the current simulation
+    - `R`: restart the current simulation
+    - `N`: Go to next simulation
