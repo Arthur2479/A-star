@@ -1,7 +1,7 @@
 from processing_mock import *
 from grid import Grid
 from spot import Spot
-from utils import width_, height_, END_DELAY, heuristic
+from utils import width_, height_, END_DELAY
 
 grid = Grid()
 
@@ -34,7 +34,7 @@ def draw():
         grid.setup_grid(random_end=True)
         return  # No possible path
 
-    winner = find_winner_index(grid)
+    winner = grid.find_winner_index()
     current = grid.open_set[winner]
     if current == grid.end_spot:
         delay(END_DELAY)
@@ -44,7 +44,7 @@ def draw():
     grid.open_set.remove(current)
     grid.closed_set.append(current)
 
-    discover_neighbors(current)
+    grid.discover_neighbors(current)
 
     # Find the path
     path = grid.find_path(current)
@@ -66,37 +66,3 @@ def keyPressed():
         grid.pause = not grid.pause
     elif key == "n" or key == "N":  # Next
         grid.setup_grid(random_end=True)
-
-
-def find_winner_index(grid_):
-    winner = 0
-    for i, spot in enumerate(grid_.open_set):
-        if spot.f < grid_.open_set[winner].f:
-            winner = i
-    return winner
-
-
-def discover_neighbors(current):
-    neighbors = current.neighbors
-    for neighbor in neighbors:
-        if neighbor in grid.closed_set or neighbor.block:
-            continue
-
-        if neighbor in current.radial_neighbors:
-            temp_g = current.g + 1
-        if neighbor in current.diagonal_neighbors:
-            temp_g = current.g + 1.41
-
-        if neighbor in grid.open_set and not temp_g < neighbor.g:
-            continue
-
-        neighbor.g = temp_g
-        neighbor.h = heuristic(neighbor, grid.end_spot)
-        neighbor.f = neighbor.g + neighbor.h
-        neighbor.previous = current
-        if neighbor in grid.open_set:
-            if temp_g < neighbor.g:
-                index = grid.open_set.index(neighbor)
-                grid.open_set[index] = neighbor
-        else:
-            grid.open_set.append(neighbor)

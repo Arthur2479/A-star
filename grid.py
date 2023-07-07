@@ -1,6 +1,6 @@
 from processing_mock import *
 from spot import Spot
-from utils import WHITE, RED, GREEN, BLUE, PURPLE, width_
+from utils import WHITE, RED, GREEN, BLUE, PURPLE, width_, heuristic
 
 
 class Grid:
@@ -95,6 +95,38 @@ class Grid:
         else:
             return
         self.restart_sim()
+
+    def find_winner_index(self):
+        winner = 0
+        for i, spot in enumerate(self.open_set):
+            if spot.f < self.open_set[winner].f:
+                winner = i
+        return winner
+
+    def discover_neighbors(self, current):
+        neighbors = current.neighbors
+        for neighbor in neighbors:
+            if neighbor in self.closed_set or neighbor.block:
+                continue
+
+            if neighbor in current.radial_neighbors:
+                temp_g = current.g + 1
+            if neighbor in current.diagonal_neighbors:
+                temp_g = current.g + 1.41
+
+            if neighbor in self.open_set and not temp_g < neighbor.g:
+                continue
+
+            neighbor.g = temp_g
+            neighbor.h = heuristic(neighbor, self.end_spot)
+            neighbor.f = neighbor.g + neighbor.h
+            neighbor.previous = current
+            if neighbor in self.open_set:
+                if temp_g < neighbor.g:
+                    index = self.open_set.index(neighbor)
+                    self.open_set[index] = neighbor
+            else:
+                self.open_set.append(neighbor)
 
     def display_grid(self, path=None):
         background(0)
